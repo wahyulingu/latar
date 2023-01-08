@@ -1,0 +1,16 @@
+{
+    "name": "wahyulingu/latar",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Wahyulingu\\Latar\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Wahyudi, Lingu",
+            "email": "wahyulingu@gmail.com"
+        }
+    ],
+    "require": {}
+}
