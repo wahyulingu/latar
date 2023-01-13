@@ -1,5 +1,5 @@
-## About Laravel
-Tidak untuk digunakan di production hanya untuk pembelajaran, saya tidak bertanggung jawab atas segala bentuk kerugian yang terjadi akibat dari penggunaan sebagian atau keseluruhan kode di dalam repository ini,
+## Disclaimer Penyangkalan
+Tidak untuk digunakan, hanya untuk pembelajaran, saya tidak bertanggung jawab atas segala bentuk kerugian yang terjadi akibat dari penggunaan sebagian atau keseluruhan kode di dalam repository ini,
 
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
