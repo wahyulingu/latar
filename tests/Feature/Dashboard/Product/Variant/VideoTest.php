@@ -1,0 +1,134 @@
+<?php
+
+namespace Tests\Feature\Dashboard\Product\Variant;
+
+use App\Models\File;
+use App\Models\Product\ProductVariant;
+use App\Models\Product\ProductVideo;
+use App\Models\Profile\ProfileOwner;
+use App\Models\User;
+use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class VideoTest extends TestCase
+{
+    use RefreshDatabase;
+    use WithFaker;
+
+    public function testCreateScreenOfProductVariantVideoCanBeRendered()
+    {
+        /** @var ProductVariant */
+        $productVariant = ProductVariant::factory()->create();
+
+        $this->actingAs($productVariant->master->owner->user);
+
+        $this
+
+            ->get(sprintf('/dashboard/product/variant/%s/video/create', $productVariant->getKey()))
+            ->assertSuccessful();
+    }
+
+    public function testOnlyUserWithOwnerProfileCanOpenCreateScreenOfProductVariantVideo()
+    {
+        /** @var ProductVariant */
+        $productVariant = ProductVariant::factory()->create();
+
+        /** @var User */
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $this
+
+            ->get(sprintf('/dashboard/product/variant/%s/video/create', $productVariant->getKey()))
+            ->assertForbidden();
+    }
+
+    public function testOnlyOwnerCanCanOpenCreateScreenOfProductVariantVideo()
+    {
+        /** @var ProductVariant */
+        $productVariant = ProductVariant::factory()->create();
+
+        /** @var ProfileOwner */
+        $owner = ProfileOwner::factory()->create();
+
+        $this->actingAs($owner->user);
+
+        $this
+
+            ->get(sprintf('/dashboard/product/variant/%s/video/create', $productVariant->getKey()))
+            ->assertForbidden();
+    }
+
+    public function testCanStoreNewProductVariantVideo()
+    {
+        /** @var ProductVariant */
+        $productVariant = ProductVariant::factory()->create();
+
+        $this->actingAs($productVariant->master->owner->user);
+
+        $productVariantVideoCountBeforeStore = ProductVideo::count();
+
+        /** @var FilesystemAdapter */
+        $fakeStorage = Storage::fake(File::fileDisk());
+
+        $video = UploadedFile::fake()->create(
+            name: 'video.mp4',
+            mimeType: 'video/mpeg',
+            kilobytes: 6000,
+        );
+
+        $this
+
+            ->post(
+                uri: sprintf('/dashboard/product/variant/%s/video', $productVariant->getKey()),
+                data: [
+                    'name' => $this->faker->words(2, true),
+                    'description' => $this->faker->words(20, true),
+                    'video' => $video,
+                ]
+            )
+
+            ->assertSuccessful();
+
+        $this->assertDatabaseCount('product_videos', ++$productVariantVideoCountBeforeStore);
+
+        $fakeStorage->assertExists($video->hashName('media/product/videos'));
+    }
+
+    public function testOnlyUserWithOwnerProfileCanStoreNewProductVariantVideo()
+    {
+        /** @var ProductVariant */
+        $productVariant = ProductVariant::factory()->create();
+
+        /** @var User */
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $this
+
+            ->post(sprintf('/dashboard/product/variant/%s/video', $productVariant->getKey()))
+            ->assertForbidden();
+    }
+
+    public function testOnlyOwnerOfTheProductVariantCanStoreNewProductVariantVideo()
+    {
+        /** @var ProductVariant */
+        $productVariant = ProductVariant::factory()->create();
+
+        /** @var ProfileOwner */
+        $owner = ProfileOwner::factory()->create();
+
+        $this->actingAs($owner->user);
+
+        $this
+
+            ->post(sprintf('/dashboard/product/variant/%s/video', $productVariant->getKey()))
+            ->assertForbidden();
+    }
+}
